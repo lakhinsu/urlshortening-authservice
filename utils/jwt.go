@@ -2,11 +2,11 @@ package utils
 
 import (
 	"errors"
-	"fmt"
 	"strconv"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/rs/zerolog/log"
 )
 
 type hasuraCustomClaim struct {
@@ -33,7 +33,7 @@ func init() {
 
 	expiry, err := strconv.Atoi(ReadEnvVar("JWT_EXPIRE"))
 	if err != nil {
-		fmt.Println("Invalid JWT expire, using default value as 3600")
+		log.Debug().Err(err).Msg("Invalid value of JWT_EXPIRE env variable, falling back to default 3600")
 		jwtExpiresAt = 3600
 	} else {
 		jwtExpiresAt = expiry
@@ -64,7 +64,7 @@ func CreateJWTToken(userEmail string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, myClaims)
 	ss, err := token.SignedString(jwtSecret)
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Debug().Err(err).Msgf("Error occurred while signing JWT token")
 		return "", errors.New("failed to generate JWT token")
 	}
 	return ss, nil

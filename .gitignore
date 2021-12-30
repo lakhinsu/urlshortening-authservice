@@ -6,6 +6,11 @@
 *.dylib
 
 .env
+.dockerignore
+docker-compose.yaml
+Dockerfile
+
+go.sum
 
 # Test binary, built with `go test -c`
 *.test

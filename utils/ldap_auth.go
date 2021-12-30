@@ -4,7 +4,9 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"net/http"
 
+	"github.com/rs/zerolog/log"
 	ldap "gopkg.in/ldap.v2"
 )
 
@@ -25,44 +27,39 @@ func init() {
 	user_fqdn_aname = ReadEnvVar("LDAP_USER_FQDN_ATTRIBUTE_NAME")
 }
 
-func GetLdapUser(username string, password string) (map[string]string, error) {
+func GetLdapUser(username string, password string) (map[string]string, int, error) {
 	// Dial up with LDAP server and bind read only user
-
-	// ldap_string := ReadEnvVar("LDAP_SERVER")
 
 	// dial up with the server
 	ldap_user_dial, err := ldap.Dial("tcp", ldap_string)
 	if err != nil {
-		fmt.Println(err.Error())
-		defer ldap_user_dial.Close()
-		return nil, errors.New("failed to authenticate user, internal server error")
+		log.Debug().Err(err).
+			Msgf("Error occurred while dialing to the LDAP server, URL: %s", ldap_string)
+		return nil, http.StatusInternalServerError, errors.New(err.Error())
 	}
 
-	// ldap_tls := ReadEnvVar("LDAP_TLS")
-
 	// If LDAP_TLS is set to True then reconnect with TLS client.
-	if ldap_tls == "True" {
+	if ldap_tls == "true" {
 		// Reconnect with TLS
 		err = ldap_user_dial.StartTLS(&tls.Config{})
 		if err != nil {
+			log.Debug().Err(err).
+				Msg("Error occurred while connecting with LDAP server with TLS enabled")
 			defer ldap_user_dial.Close()
-			fmt.Println(err.Error())
-			return nil, errors.New("failed to authenticate user, internal server error")
+			return nil, http.StatusInternalServerError, errors.New(err.Error())
 		}
 	}
 
 	// Load the USER DN fron ENV
-	// userdn := ReadEnvVar("LDAP_USER_DN")
 	user_bind := fmt.Sprintf("uid=%s,%s", username, userdn)
 	// Bind as the user to verify their password
 	err = ldap_user_dial.Bind(user_bind, password)
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Debug().Err(err).
+			Msgf("Error occurred while binding user with LDAP server, userdn:%s", userdn)
 		defer ldap_user_dial.Close()
-		return nil, errors.New("failed to authenticate user, incorrect user name or password")
+		return nil, http.StatusUnauthorized, errors.New(err.Error())
 	}
-
-	// user_fqdn_aname := ReadEnvVar("LDAP_USER_FQDN_ATTRIBUTE_NAME")
 
 	searchRequest := ldap.NewSearchRequest(
 		userdn, // The base dn to search
@@ -74,9 +71,10 @@ func GetLdapUser(username string, password string) (map[string]string, error) {
 
 	sr, err := ldap_user_dial.Search(searchRequest)
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Debug().Err(err).Msg("Error occurred while searching user with LDAP server")
 		defer ldap_user_dial.Close()
-		return nil, errors.New("failed to authenticate user, internal server error")
+		return nil, http.StatusInternalServerError,
+			errors.New("failed to authenticate user, internal server error")
 	}
 	user_fqdn_value := sr.Entries[0].GetAttributeValue("mail")
 
@@ -84,5 +82,5 @@ func GetLdapUser(username string, password string) (map[string]string, error) {
 		"email": user_fqdn_value,
 	}
 	defer ldap_user_dial.Close()
-	return results, nil
+	return results, http.StatusOK, nil
 }

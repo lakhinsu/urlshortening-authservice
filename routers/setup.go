@@ -4,10 +4,13 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	controllers "github.com/lakhinsu/urlshortening-authservice/controllers"
+	"github.com/lakhinsu/urlshortening-authservice/controllers"
+	"github.com/rs/zerolog/log"
 )
 
 func SetupRouters(app *gin.Engine) error {
+
+	log.Debug().Msg("Setting up V1 routers")
 	v1 := app.Group("/v1")
 	{
 		v1.POST("/login", controllers.Login)
