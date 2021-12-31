@@ -28,10 +28,10 @@ var (
 )
 
 func init() {
-	jwtSecretString := ReadEnvVar("JWT_SECRET")
+	jwtSecretString := GetEnvVar("JWT_SECRET")
 	jwtSecret = []byte(jwtSecretString)
 
-	expiry, err := strconv.Atoi(ReadEnvVar("JWT_EXPIRE"))
+	expiry, err := strconv.Atoi(GetEnvVar("JWT_EXPIRE"))
 	if err != nil {
 		log.Debug().Err(err).Msg("Invalid value of JWT_EXPIRE env variable, falling back to default 3600")
 		jwtExpiresAt = 3600
@@ -39,7 +39,7 @@ func init() {
 		jwtExpiresAt = expiry
 	}
 
-	jwtIssuer = ReadEnvVar("JWT_ISSUER")
+	jwtIssuer = GetEnvVar("JWT_ISSUER")
 }
 
 func CreateJWTToken(userEmail string) (string, error) {

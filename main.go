@@ -11,8 +11,7 @@ import (
 )
 
 func init() {
-	utils.SetupLogger()
-	mode := utils.ReadEnvVar("GIN_MODE")
+	mode := utils.GetEnvVar("GIN_MODE")
 	gin.SetMode(mode)
 }
 
@@ -49,8 +48,8 @@ func main() {
 	// 	autotls.RunWithManager(app, &m)
 	// }
 
-	host := utils.ReadEnvVar("GIN_ADDR")
-	port := utils.ReadEnvVar("GIN_PORT")
+	host := utils.GetEnvVar("GIN_ADDR")
+	port := utils.GetEnvVar("GIN_PORT")
 
 	log.Debug().Msgf("Listening on addr:%s and port:%s", host, port)
 	if err := app.Run(fmt.Sprintf("%s:%s", host, port)); err != nil {

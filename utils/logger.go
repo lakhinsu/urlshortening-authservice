@@ -7,8 +7,8 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func SetupLogger() {
-	logLevel := ReadEnvVar("LOG_LEVEL")
+func init() {
+	logLevel := GetEnvVar("LOG_LEVEL")
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	if logLevel == "debug" {
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)

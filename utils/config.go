@@ -17,7 +17,7 @@ func init() {
 	viper.AutomaticEnv()
 }
 
-func ReadEnvVar(name string) string {
+func GetEnvVar(name string) string {
 	if !viper.IsSet(name) {
 		log.Debug().Msgf("Environment varaible %s is not set", name)
 		return ""

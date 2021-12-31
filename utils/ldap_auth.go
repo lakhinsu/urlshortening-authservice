@@ -15,45 +15,65 @@ var (
 	ldap_tls        string
 	userdn          string
 	user_fqdn_aname string
+	ssl_verify      string
+	serverName      string
 )
 
 func init() {
-	ldap_string = ReadEnvVar("LDAP_SERVER")
+	ldap_string = GetEnvVar("LDAP_CONNECTION_STRING")
 
-	ldap_tls = ReadEnvVar("LDAP_TLS")
+	ldap_tls = GetEnvVar("LDAP_TLS")
 
-	userdn = ReadEnvVar("LDAP_USER_DN")
+	userdn = GetEnvVar("LDAP_USER_DN")
 
-	user_fqdn_aname = ReadEnvVar("LDAP_USER_FQDN_ATTRIBUTE_NAME")
+	user_fqdn_aname = GetEnvVar("LDAP_USER_FQDN_ATTRIBUTE_NAME")
+
+	if ldap_tls == "true" {
+		ssl_verify = GetEnvVar("LDAP_SSL_VERIFY")
+		if ssl_verify == "true" {
+			serverName = GetEnvVar("LDAP_SERVER_NAME")
+			if serverName == "" {
+				log.Error().Msg("LDAP_SERVER_NAME env variable is not set. " +
+					"Either set LDAP_SSL_VERIFY=false" +
+					" or set LDAP_SERVER_NAME for certificate validation")
+			}
+		}
+	}
 }
 
 func GetLdapUser(username string, password string) (map[string]string, int, error) {
 	// Dial up with LDAP server and bind read only user
+	var ldap_user_dial *ldap.Conn
 
 	// dial up with the server
-	ldap_user_dial, err := ldap.Dial("tcp", ldap_string)
-	if err != nil {
-		log.Debug().Err(err).
-			Msgf("Error occurred while dialing to the LDAP server, URL: %s", ldap_string)
-		return nil, http.StatusInternalServerError, errors.New(err.Error())
-	}
-
-	// If LDAP_TLS is set to True then reconnect with TLS client.
-	if ldap_tls == "true" {
-		// Reconnect with TLS
-		err = ldap_user_dial.StartTLS(&tls.Config{})
+	if ldap_tls != "true" {
+		ldap_dial, err := ldap.Dial("tcp", ldap_string)
 		if err != nil {
 			log.Debug().Err(err).
-				Msg("Error occurred while connecting with LDAP server with TLS enabled")
-			defer ldap_user_dial.Close()
+				Msgf("Error occurred while dialing to the LDAP server, URL: %s", ldap_string)
 			return nil, http.StatusInternalServerError, errors.New(err.Error())
 		}
+		ldap_user_dial = ldap_dial
+	} else {
+		var ldap_dial *ldap.Conn
+		var err error
+		if ssl_verify == "true" {
+			ldap_dial, err = ldap.DialTLS("tcp", ldap_string, &tls.Config{ServerName: serverName})
+		} else {
+			ldap_dial, err = ldap.DialTLS("tcp", ldap_string, &tls.Config{InsecureSkipVerify: true})
+		}
+		if err != nil {
+			log.Debug().Err(err).
+				Msgf("Error occurred while dialing to the LDAP server, URL: %s", ldap_string)
+			return nil, http.StatusInternalServerError, errors.New(err.Error())
+		}
+		ldap_user_dial = ldap_dial
 	}
 
 	// Load the USER DN fron ENV
 	user_bind := fmt.Sprintf("uid=%s,%s", username, userdn)
 	// Bind as the user to verify their password
-	err = ldap_user_dial.Bind(user_bind, password)
+	err := ldap_user_dial.Bind(user_bind, password)
 	if err != nil {
 		log.Debug().Err(err).
 			Msgf("Error occurred while binding user with LDAP server, userdn:%s", userdn)
