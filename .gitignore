@@ -10,7 +10,7 @@
 docker-compose.yaml
 Dockerfile
 
-go.sum
+.gitactionsbackup
 
 # Test binary, built with `go test -c`
 *.test
