@@ -27,7 +27,7 @@ func main() {
 
 	log.Info().Msg("Adding request id middleware")
 
-	app.Use(middlewares.RequestID(), middlewares.RequestLogger())
+	app.Use(middlewares.RequestID(), middlewares.RequestLogger(), middlewares.CORSMiddleware())
 
 	log.Info().Msg("Setting up routers")
 
@@ -38,18 +38,18 @@ func main() {
 		panic("Error occured while setting up the routers")
 	}
 
-	// https := utils.ReadEnvVar("GIN_HTTPS")
-	// if https == "true" {
-	// 	m := autocert.Manager{
-	// 		Prompt: autocert.AcceptTOS,
-	// 		Cache:  autocert.DirCache("certs"),
-	// 	}
-
-	// 	autotls.RunWithManager(app, &m)
-	// }
-
 	host := utils.GetEnvVar("GIN_ADDR")
 	port := utils.GetEnvVar("GIN_PORT")
+
+	https := utils.GetEnvVar("GIN_HTTPS")
+	if https == "true" {
+		certFile := utils.GetEnvVar("GIN_CERT")
+		certKey := utils.GetEnvVar("GIN_CERT_KEY")
+
+		if err := app.RunTLS(fmt.Sprintf("%s:%s", host, port), certFile, certKey); err != nil {
+			log.Error().Err(err).Msg("Error occured while setting up the server in HTTPS mode")
+		}
+	}
 
 	log.Debug().Msgf("Listening on addr:%s and port:%s", host, port)
 	if err := app.Run(fmt.Sprintf("%s:%s", host, port)); err != nil {
