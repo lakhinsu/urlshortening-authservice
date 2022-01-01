@@ -2,43 +2,39 @@ name: Go
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Set up Go
-      uses: actions/setup-go@v2
-      with:
-        go-version: 1.17
-        
-      env:
-        GIN_HTTPS: "false"
-        GIN_ADDR: "0.0.0.0"
-        GIN_PORT: "49167"
-        LOG_LEVEL: "debug"
-        LDAP_TLS: "true"
-        LDAP_CONNECTION_STRING: "www.zflexldap.com:636"
-        LDAP_SERVER_NAME: "zflexldap.com"
-        LDAP_SSL_VERIFY: "false"
-        LDAP_USER_DN: "ou=users,ou=guests,dc=zflexsoftware,dc=com"
-        LDAP_USER_FQDN_ATTRIBUTE_NAME: "mail"
-        JWT_EXPIRE: 3600
-        TEST_USER: ${{ secrets.TEST_USER }}
-        TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
-        JWT_SECRET: ${{ secrets.JWT_SECRET }}
-        JWT_ISSUER: ${{ secrets.JWT_ISSUER }}
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
 
-    - name: Build
-      run: go build -v ./...
+      - name: Build
+        run: go build -v ./...
 
-    - name: Test
-      run: go test -v ./tests/
-
-    
+      - name: Test
+        env:
+          GIN_HTTPS: "false"
+          GIN_ADDR: "0.0.0.0"
+          GIN_PORT: "49167"
+          LOG_LEVEL: "debug"
+          LDAP_TLS: "true"
+          LDAP_CONNECTION_STRING: "www.zflexldap.com:636"
+          LDAP_SERVER_NAME: "zflexldap.com"
+          LDAP_SSL_VERIFY: "false"
+          LDAP_USER_DN: "ou=users,ou=guests,dc=zflexsoftware,dc=com"
+          LDAP_USER_FQDN_ATTRIBUTE_NAME: "mail"
+          JWT_EXPIRE: 3600
+          TEST_USER: ${{ secrets.TEST_USER }}
+          TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_ISSUER: ${{ secrets.JWT_ISSUER }}
+        run: go test -v ./tests/
