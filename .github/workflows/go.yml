@@ -17,6 +17,7 @@ jobs:
       uses: actions/setup-go@v2
       with:
         go-version: 1.17
+        
       env:
         GIN_HTTPS: "false"
         GIN_ADDR: "0.0.0.0"
@@ -29,6 +30,10 @@ jobs:
         LDAP_USER_DN: "ou=users,ou=guests,dc=zflexsoftware,dc=com"
         LDAP_USER_FQDN_ATTRIBUTE_NAME: "mail"
         JWT_EXPIRE: 3600
+        TEST_USER: ${{ secrets.TEST_USER }}
+        TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+        JWT_SECRET: ${{ secrets.JWT_SECRET }}
+        JWT_ISSUER: ${{ secrets.JWT_ISSUER }}
 
     - name: Build
       run: go build -v ./...
