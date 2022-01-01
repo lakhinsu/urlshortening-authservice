@@ -3,11 +3,18 @@ module github.com/lakhinsu/urlshortening-authservice
 go 1.17
 
 require (
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.7.7
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.3.0
 	github.com/spf13/viper v1.10.1
+	github.com/stretchr/testify v1.7.0
 	gopkg.in/ldap.v2 v2.5.1
+)
+
+require (
+	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
+	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )
 
 require (
