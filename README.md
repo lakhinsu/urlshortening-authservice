@@ -1,5 +1,5 @@
 # Url-Shortening LDAP Auth Service
-[![Go](https://github.com/lakhinsu/urlshortening-authservice/actions/workflows/go.yml/badge.svg?branch=main)](https://github.com/lakhinsu/urlshortening-authservice/actions/workflows/go.yml)
+[![Go](https://github.com/lakhinsu/urlshortening-authservice/actions/workflows/go.yml/badge.svg?branch=main)](https://github.com/lakhinsu/urlshortening-authservice/actions/workflows/go.yml) [![Go Report Card](https://goreportcard.com/badge/github.com/lakhinsu/urlshortening-authservice)](https://goreportcard.com/report/github.com/lakhinsu/urlshortening-authservice)
 
 This repository contains a REST API service for URL shortening project (on going). The basic idea behind this project is to create a free alternative of [go/links](https://www.golinks.io/) or bit.ly for organizations.
 
