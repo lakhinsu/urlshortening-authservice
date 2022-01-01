@@ -26,8 +26,8 @@ func SetupApp() *gin.Engine {
 	err := routers.SetupRouters(app)
 
 	if err != nil {
-		log.Fatal().Err(err).Msg("Error occured while setting up routers")
-		panic("Error occured while setting up the routers")
+		log.Fatal().Err(err).Msg("Error occurred while setting up routers")
+		panic("Error occurred while setting up the routers")
 	}
 
 	return app

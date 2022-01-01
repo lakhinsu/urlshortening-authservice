@@ -27,12 +27,12 @@ func main() {
 		certKey := utils.GetEnvVar("GIN_CERT_KEY")
 
 		if err := app.RunTLS(fmt.Sprintf("%s:%s", host, port), certFile, certKey); err != nil {
-			log.Error().Err(err).Msg("Error occured while setting up the server in HTTPS mode")
+			log.Error().Err(err).Msg("Error occurred while setting up the server in HTTPS mode")
 		}
 	}
 
 	log.Debug().Msgf("Listening on addr:%s and port:%s", host, port)
 	if err := app.Run(fmt.Sprintf("%s:%s", host, port)); err != nil {
-		log.Error().Err(err).Msg("Error occured while setting up the server")
+		log.Error().Err(err).Msg("Error occurred while setting up the server")
 	}
 }

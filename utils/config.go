@@ -21,7 +21,7 @@ func init() {
 
 func GetEnvVar(name string) string {
 	if !viper.IsSet(name) {
-		log.Debug().Msgf("Environment varaible %s is not set", name)
+		log.Debug().Msgf("Environment variable %s is not set", name)
 		return ""
 	}
 	value := viper.GetString(name)
